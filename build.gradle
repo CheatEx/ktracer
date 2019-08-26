@@ -1,0 +1,40 @@
+plugins {
+  id 'org.jetbrains.kotlin.jvm' version '1.3.41'
+  id 'application'
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+group 'cc.cheatex'
+version '1.0-SNAPSHOT'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation "org.jetbrains.kotlin:kotlin-stdlib"
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+}
+
+application {
+    mainClassName = 'cc.cheatex.ktracer.RunnerKt'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.1'
+}
