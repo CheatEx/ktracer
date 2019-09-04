@@ -19,19 +19,30 @@ object NotImplemented: Parser<Nothing> {
   override fun tryParse(tokens: Sequence<TokenMatch>): ParseResult<Nothing> = NotImplementedResult
 }
 
-object ItemsParser : Grammar<Scene>() {
-  val num       by token("-?\\d+")
-  val floatNum  by token("(-?\\d+(\\.\\d*)?|\\d*\\.\\d+)", ignore = true)
-  val open      by token("\\{")
-  val close     by token("}")
-  val eq        by token("=")
-  val scene     by token("scene")
+object SceneParser : Grammar<Scene>() {
+  val whiteSpace  by token("\\s+", ignore = true)
+  val floatNum    by token("(-?\\d+(\\.\\d*)?|\\d*\\.\\d+)")
+  val open        by token("\\{")
+  val close       by token("\\}")
+  val eq          by token("=")
 
-  val SceneBody: Parser<Scene> = NotImplemented
-  val Scene: Parser<Scene> = skip(scene) and skip(open) and SceneBody and skip(close) map { scene -> scene }
+  val scene         by token("scene")
+  val background    by token("background")
+  val ambientLight  by token("ambientLight")
 
-  override val rootParser: Parser<Scene>
-    get() = Scene
+  val FloatNum: Parser<Double> = floatNum map { nt ->
+    nt.text.toDouble()
+  }
+  val Color: Parser<ColorD> = FloatNum and FloatNum and FloatNum map { (r, g, b) ->
+    ColorD(r, g, b) }
+
+  val AmbientLight: Parser<ColorD> = skip(ambientLight) and skip(eq) and Color
+  val Background: Parser<ColorD> = skip(background) and skip(eq) and Color
+  val SceneBody: Parser<Scene> = Background and AmbientLight map { (b, al) ->
+    Scene(Camera(VectorD.zero, VectorD.zero, 0.0), emptyList(), emptyList(), al, b) }
+  val Scene: Parser<Scene> = skip(scene) and skip(open) and SceneBody and skip(close)
+
+  override val rootParser: Parser<Scene> = Scene
 }
 
 fun parseScene(input: InputStream): Scene {

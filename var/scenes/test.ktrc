@@ -1,5 +1,5 @@
 scene {
-  background = 0 0 0
+  background = 0.05 0.05 0.05
   ambientLight = 0.5 0.5 0.5
 }
 
