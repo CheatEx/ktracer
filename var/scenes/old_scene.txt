@@ -1,8 +1,5 @@
-scene {
-  background = 0 0 0
-  ambientLight = 0.5 0.5 0.5
-}
-
+0 0 0
+0.5 0.5 0.5
 camera1
 0 4 8
 0 4 0
