@@ -20,14 +20,14 @@ sealed class MaterialObject(override val pos: VectorD, open val material: Materi
 data class Sphere(override val pos: VectorD, override val material: Material, val radius: Double)
   : MaterialObject(pos, material)
 
-sealed class Light(override val pos: VectorD, open val intensity: ColorD)
+sealed class Light(override val pos: VectorD, open val color: ColorD)
   : SceneObject(pos)
 
-data class PointLight(override val pos: VectorD, override val intensity: ColorD)
-  : Light(pos, intensity)
+data class PointLight(override val pos: VectorD, override val color: ColorD)
+  : Light(pos, color)
 
-data class SpotLight(override val pos: VectorD, val at: VectorD, val angle: Double, override val intensity: ColorD)
-  : Light(pos, intensity)
+data class SpotLight(override val pos: VectorD, val at: VectorD, val spread: Double, override val color: ColorD)
+  : Light(pos, color)
 
 data class Camera(override val at: VectorD, val upo: VectorD, val viewport: Double)
   : DirectedSceneObject(VectorD.zero, at) {

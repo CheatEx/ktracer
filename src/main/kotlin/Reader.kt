@@ -1,9 +1,8 @@
 package cc.cheatex.ktracer
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.skip
+import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.parser.ErrorResult
 import com.github.h0tk3y.betterParse.parser.ParseResult
@@ -29,17 +28,58 @@ object SceneParser : Grammar<Scene>() {
   val scene         by token("scene")
   val background    by token("background")
   val ambientLight  by token("ambientLight")
+  val camera        by token("camera")
+  val direction     by token("direction")
+  val up            by token("up")
+  val viewport      by token("viewport")
+  val pointLight    by token("pointLight")
+  val spotLight     by token("spotLight")
+  val position      by token("position")
+  val color         by token("color")
+  val spread        by token("spread")
 
   val FloatNum: Parser<Double> = floatNum map { nt ->
     nt.text.toDouble()
   }
   val Color: Parser<ColorD> = FloatNum and FloatNum and FloatNum map { (r, g, b) ->
     ColorD(r, g, b) }
+  val Vector: Parser<VectorD> = FloatNum and FloatNum and FloatNum map { (x, y, z) ->
+    VectorD(x, y, z) }
 
-  val AmbientLight: Parser<ColorD> = skip(ambientLight) and skip(eq) and Color
-  val Background: Parser<ColorD> = skip(background) and skip(eq) and Color
-  val SceneBody: Parser<Scene> = Background and AmbientLight map { (b, al) ->
-    Scene(Camera(VectorD.zero, VectorD.zero, 0.0), emptyList(), emptyList(), al, b) }
+  inline fun <reified T> value(key: Token, value: Parser<T>): Parser<T> =
+      skip(key) and skip(eq) and value
+
+  val AmbientLight: Parser<ColorD> = value(ambientLight, Color)
+  val Background: Parser<ColorD> = value(background, Color)
+  val Camera: Parser<Camera> =
+      skip(camera) and skip(open) and
+      value(direction, Vector) and
+      value(up, Vector) and
+      value(viewport, FloatNum) and
+      skip(close) map { (d, u, v) ->
+        Camera(d, u, v) }
+  val PointLight: Parser<PointLight> =
+      skip(pointLight) and skip(open) and
+      value(position, Vector) and
+      value(color, Color) and
+      skip(close) map { (p, c) ->
+        PointLight(p, c) }
+  val SpotLight: Parser<SpotLight> =
+      skip(spotLight) and skip(open) and
+      value(position, Vector) and
+      value(direction, Vector) and
+      value(spread, FloatNum) and
+      value(color, Color) and
+      skip(close) map { (p, d, a, c) ->
+        SpotLight(p, d, a, c) }
+  val Light: Parser<Light> = PointLight or SpotLight
+  val SceneBody: Parser<Scene> =
+      Background and
+      AmbientLight and
+      Camera and
+      zeroOrMore(Light) map { (b, al, c) ->
+        Scene(c, emptyList(), emptyList(), al, b) }
+
   val Scene: Parser<Scene> = skip(scene) and skip(open) and SceneBody and skip(close)
 
   override val rootParser: Parser<Scene> = Scene
