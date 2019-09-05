@@ -7,10 +7,6 @@ import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.parser.ErrorResult
 import com.github.h0tk3y.betterParse.parser.ParseResult
 import com.github.h0tk3y.betterParse.parser.Parser
-import java.io.BufferedReader
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.util.*
 
 object NotImplementedResult: ErrorResult()
 
@@ -37,6 +33,11 @@ object SceneParser : Grammar<Scene>() {
   val position      by token("position")
   val color         by token("color")
   val spread        by token("spread")
+  val material      by token("material")
+  val alpha         by token("alpha")
+  val reflection    by token("reflection")
+  val sphere        by token("sphere")
+  val radius        by token("radius")
 
   val FloatNum: Parser<Double> = floatNum map { nt ->
     nt.text.toDouble()
@@ -72,98 +73,31 @@ object SceneParser : Grammar<Scene>() {
       value(color, Color) and
       skip(close) map { (p, d, a, c) ->
         SpotLight(p, d, a, c) }
+  val Material: Parser<Material> =
+      skip(material) and skip(open) and
+      value(color, Color) and
+      value(alpha, FloatNum) and
+      value(reflection, FloatNum) and
+      skip(close) map { (c, a, r) ->
+        Material(c, a, r) }
+  val Sphere: Parser<Sphere> =
+      skip(sphere) and skip(open) and
+      value(position, Vector) and
+      value(radius, FloatNum) and
+      Material and
+      skip(close) map { (p, r, m) ->
+        Sphere(p, m, r) }
+  val Object: Parser<MaterialObject> = Sphere
   val Light: Parser<Light> = PointLight or SpotLight
   val SceneBody: Parser<Scene> =
       Background and
       AmbientLight and
       Camera and
-      zeroOrMore(Light) map { (b, al, c) ->
-        Scene(c, emptyList(), emptyList(), al, b) }
+      zeroOrMore(Light) and
+      zeroOrMore(Object) map { (b, al, c, ls, os) ->
+        Scene(c, os, ls, al, b) }
 
   val Scene: Parser<Scene> = skip(scene) and skip(open) and SceneBody and skip(close)
 
   override val rootParser: Parser<Scene> = Scene
-}
-
-fun parseScene(input: InputStream): Scene {
-  val reader = BufferedReader(InputStreamReader(input))
-
-  val background = readColor(reader)
-  val ambientLight = readColor(reader)
-  val camera = readCamera(reader)
-  val lights = readLights(reader)
-  val objects = readObjects(reader)
-
-  return Scene(camera, objects, lights, background, ambientLight)
-}
-
-private fun readCamera(reader: BufferedReader): Camera {
-  val name = reader.readLine().trim()
-  val at = readVector(reader)
-  val up = readVector(reader)
-  val viewport = reader.readLine().trim().toDouble()
-
-  return Camera(at, up, viewport)
-}
-
-private fun readLights(reader: BufferedReader): List<Light> =
-    readObjectGroup(reader, ::readPointLight) +
-        readObjectGroup(reader, ::readSpotLight)
-
-private fun readObjects(reader: BufferedReader): List<MaterialObject> =
-    readObjectGroup(reader, ::readSphere)
-
-private fun readPointLight(reader: BufferedReader): PointLight {
-  val name = reader.readLine().trim()
-  val position = readVector(reader)
-  val intensity = readColor(reader)
-
-  return PointLight(position, intensity)
-}
-
-private fun readSpotLight(reader: BufferedReader): SpotLight {
-  val name = reader.readLine().trim()
-  val position = readVector(reader)
-  val at = readVector(reader)
-  val angle = reader.readLine().trim().toDouble()
-  val intensity = readColor(reader)
-
-  return SpotLight(position, at, angle, intensity)
-}
-
-private fun <T, R : T> readObjectGroup(reader: BufferedReader,
-                                       objectReader: (BufferedReader) -> R): List<T> {
-  reader.readLine()
-  val objectsCount = reader.readLine().trim().toInt()
-
-  return sequence {
-    for (i in 0..objectsCount) yield(objectReader(reader))
-  } .toList()
-}
-
-private fun readSphere(reader: BufferedReader): Sphere {
-  val name = reader.readLine().trim()
-  val position = readVector(reader)
-  val radius = reader.readLine().trim().toDouble()
-  val material = readMaterial(reader)
-
-  return Sphere(position, material, radius)
-}
-
-private fun readMaterial(reader: BufferedReader): Material {
-  return Material(ColorD.white, ColorD.white, ColorD.white, 1.0, 1.0, 1.0, 1.0, 1.0)
-}
-
-private fun readVector(reader: BufferedReader): VectorD {
-  val tokenizer = StringTokenizer(reader.readLine())
-  return VectorD(tokenizer.nextToken().toDouble(),
-      tokenizer.nextToken().toDouble(),
-      tokenizer.nextToken().toDouble())
-}
-
-private fun readColor(reader: BufferedReader): ColorD {
-  val tokenizer = StringTokenizer(reader.readLine())
-  return ColorD(tokenizer.nextToken().toDouble(),
-      tokenizer.nextToken().toDouble(),
-      tokenizer.nextToken().toDouble())
 }

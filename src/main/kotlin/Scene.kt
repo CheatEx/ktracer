@@ -1,13 +1,8 @@
 package cc.cheatex.ktracer
 
-data class Material(val Ka: ColorD,
-                    val Kd: ColorD,
-                    val Ks: ColorD,
+data class Material(val color: ColorD,
                     val alpha: Double,
-                    val rI: Double,
-                    val rC: Double,
-                    val tC: Double,
-                    val lC: Double)
+                    val reflection: Double)
 
 sealed class SceneObject(open val pos: VectorD)
 
