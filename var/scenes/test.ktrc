@@ -1,5 +1,5 @@
 scene {
-  background = 1 1 1
+  background = 0 1 0
   ambientLight = 0.05 0.05 0.05
   camera {
     direction = 10 0 0
@@ -20,7 +20,7 @@ scene {
     position = 10 0 0
     radius = 4
     material {
-      color = 0.1 0.1 1.0
+      color = 1 0 0
       alpha = 1
       reflection = 1
     }
@@ -29,7 +29,7 @@ scene {
     position = 10 -6 -6
     radius = 2
     material {
-      color = 0.8 0.3 0.1
+      color = 0 0 1
       alpha = 0.5
       reflection = 0.5
     }

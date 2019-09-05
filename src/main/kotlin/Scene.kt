@@ -6,9 +6,6 @@ data class Material(val color: ColorD,
 
 sealed class SceneObject(open val pos: VectorD)
 
-sealed class DirectedSceneObject(override val pos: VectorD, open val at: VectorD)
-  : SceneObject(pos)
-
 sealed class MaterialObject(override val pos: VectorD, open val material: Material)
   : SceneObject(pos)
 
@@ -24,8 +21,9 @@ data class PointLight(override val pos: VectorD, override val color: ColorD)
 data class SpotLight(override val pos: VectorD, val at: VectorD, val spread: Double, override val color: ColorD)
   : Light(pos, color)
 
-data class Camera(override val at: VectorD, val upo: VectorD, val viewport: Double)
-  : DirectedSceneObject(VectorD.zero, at) {
+data class Camera(val ato: VectorD, val upo: VectorD, val viewport: Double)
+  : SceneObject(VectorD.zero) {
+  val at = ato.unit
   val up = upo.unit
 }
 

@@ -4,7 +4,12 @@ import kotlin.math.acos
 import kotlin.math.pow
 import kotlin.math.tan
 
-data class Resolution(val width: Int, val height: Int)
+data class Resolution(val width: Int, val height: Int) {
+  init {
+    assert(width % 2 == 0)
+    assert(height % 2 == 0)
+  }
+}
 
 data class RenderingOptions(val resolution: Resolution,
                             val depth: Int,
@@ -41,23 +46,18 @@ class ExtendedRay(origin: VectorD,
 
 const val screenDistance = 1.0
 
-class Screen(val camera: Camera, resolution: Resolution) {
-  val width: Double = tan(camera.viewport/2)*screenDistance*2
-  val density: Double = width/resolution.width
-  val height: Double = resolution.height*density
+class Screen(camera: Camera, val resolution: Resolution) {
+  val density: Double = tan(camera.viewport/2)*screenDistance*2 /resolution.width
 
-  // TODO find screen coordinate system
-  val nx: VectorD = VectorD.zero
-  val ny: VectorD = VectorD.zero
+  val nx: VectorD = (camera.at cross camera.up) * density
+  val ny: VectorD = (camera.at cross (camera.at cross camera.up)) * density
 
-  val screenCenter: VectorD
-    get() = camera.at * screenDistance / camera.at.length
-
-  val topLeft: VectorD
-    get() = screenCenter + screen2Absolute(-width/2, -height/2)
+  val screenCenter: VectorD = camera.at * screenDistance / camera.at.length
 
   fun getPixelCoordinates(x: Int, y: Int): VectorD =
-      topLeft + (nx * x.toDouble()) + (ny * y.toDouble())
+      screenCenter +
+          (nx * (x - resolution.width/2).toDouble()) +
+          (ny * (y - resolution.height/2).toDouble())
 }
 
 private const val E = 1e-6

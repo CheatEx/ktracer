@@ -69,7 +69,7 @@ inline class VectorD(val array: DoubleArray) {
         return VectorD(r)
     }
 
-    fun dot(other: VectorD): Double {
+    infix fun dot(other: VectorD): Double {
         assert(this.array.size == other.array.size)
 
         var r = 0.0
@@ -79,6 +79,18 @@ inline class VectorD(val array: DoubleArray) {
 
         return r
     }
+
+    infix fun cross(other: VectorD): VectorD =
+        VectorD(this.y*other.z - this.z*other.y,
+                this.z*other.x - this.x*other.z,
+                this.x*other.y - this.y*other.x)
+
+    inline val x: Double
+        get() = array[0]
+    inline val y: Double
+        get() = array[1]
+    inline val z: Double
+        get() = array[2]
 
     val sumsq: Double
         get() {
