@@ -182,6 +182,17 @@ inline class ColorD(val array: DoubleArray) {
         return ColorD(r)
     }
 
+    fun multiply(other: Double): ColorD {
+        assert(this.array.size == 3)
+
+        val r = DoubleArray(this.array.size)
+        for (i in this.array.indices) {
+            r[i] = this.array[i] * other
+        }
+
+        return ColorD(r)
+    }
+
     fun rgbInt(): Int {
         assert(this.array.size == 3)
 

@@ -23,7 +23,7 @@ object SceneParser : Grammar<Scene>() {
 
   val scene         by token("scene")
   val background    by token("background")
-  val ambientLight  by token("ambientLight")
+  val ambientBrightness  by token("ambientBrightness")
   val camera        by token("camera")
   val at            by token("at")
   val up            by token("up")
@@ -32,6 +32,7 @@ object SceneParser : Grammar<Scene>() {
   val spotLight     by token("spotLight")
   val position      by token("position")
   val color         by token("color")
+  val brightness    by token("brightness")
   val spread        by token("spread")
   val material      by token("material")
   val diffuse       by token("diffuse")
@@ -49,7 +50,7 @@ object SceneParser : Grammar<Scene>() {
   inline fun <reified T> value(key: Token, value: Parser<T>): Parser<T> =
       skip(key) and skip(eq) and value
 
-  val AmbientLight: Parser<ColorD> = value(ambientLight, Color)
+  val AmbientLight: Parser<Double> = value(ambientBrightness, FloatNum)
   val Background: Parser<ColorD> = value(background, Color)
   val Camera: Parser<Camera> =
       skip(camera) and skip(open) and
@@ -61,17 +62,17 @@ object SceneParser : Grammar<Scene>() {
   val PointLight: Parser<PointLight> =
       skip(pointLight) and skip(open) and
       value(position, Vector) and
-      value(color, Color) and
-      skip(close) map { (p, c) ->
-        PointLight(p, c) }
+      value(brightness, FloatNum) and
+      skip(close) map { (p, b) ->
+        PointLight(p, b) }
   val SpotLight: Parser<SpotLight> =
       skip(spotLight) and skip(open) and
       value(position, Vector) and
       value(at, Vector) and
       value(spread, FloatNum) and
-      value(color, Color) and
-      skip(close) map { (p, at, a, c) ->
-        SpotLight(p, at, a, c) }
+      value(brightness, FloatNum) and
+      skip(close) map { (p, at, a, b) ->
+        SpotLight(p, at, a, b) }
   val Material: Parser<Material> =
       skip(material) and skip(open) and
       value(color, Color) and

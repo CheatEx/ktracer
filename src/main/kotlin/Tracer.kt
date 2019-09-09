@@ -1,5 +1,7 @@
 package cc.cheatex.ktracer
 
+import kotlin.math.PI
+import kotlin.math.max
 import kotlin.math.tan
 
 data class Resolution(val width: Int, val height: Int) {
@@ -74,10 +76,7 @@ class Tracer(val scene: Scene, val options: RenderingOptions) {
 
   fun calcPixel(x: Int, y: Int): ColorD {
     val pixelCoordinates = screen.getPixelCoordinates(x, y)
-//    if ((x==100 || x==200 || x==300 || x==500 || x==600) && (y==0 || y==350 || y==700))
-//      println("Pixel[$x, $y] =$pixelCoordinates")
-    val trace = trace(Ray(VectorD.zero, pixelCoordinates - VectorD.zero))
-    return trace
+    return trace(Ray(VectorD.zero, pixelCoordinates - VectorD.zero))
   }
 
   fun trace(ray: Ray): ColorD =
@@ -87,10 +86,10 @@ class Tracer(val scene: Scene, val options: RenderingOptions) {
       }
 
   fun closestIntersection(ray: Ray): Intersection =
-      scene.objects
-          .map { intersection(ray, it) }
-          .minWith(intersectionComparator)
-          ?: InfinityIntersection
+    scene.objects
+      .map { intersection(ray, it) }
+      .minWith(intersectionComparator)
+      ?: InfinityIntersection
 
   fun intersection(ray: Ray, obj: MaterialObject): Intersection {
     return when (obj) {
@@ -139,13 +138,15 @@ class Tracer(val scene: Scene, val options: RenderingOptions) {
   }
 
   fun shade(ray: Ray, intersection: ObjectIntersection): ColorD {
-    val color = ambientColor(intersection)
+    val material = intersection.obj.material
+    val color = material.color.multiply(scene.ambientBrightness)
 
     for (light in scene.lights) {
       //there is direction to light from hit point
-      val lightDirection = light.pos - intersection.hitPoint
-      val lightDistance = lightDirection.length
-      val localIntensity = light.color.copy()
+      val lightVector = intersection.hitPoint - light.pos
+      val lightDistance = lightVector.length
+      val localIntensity = light.brightness * material.diffuse * max(0.0, intersection.hitNormal.dot(lightVector.unit)) / (PI * lightDistance * lightDistance)
+      color += material.color.multiply(localIntensity)
 
 //      if (light is SpotLight) {
 //        //this is direction of spot
@@ -163,10 +164,6 @@ class Tracer(val scene: Scene, val options: RenderingOptions) {
 
     }
 
-//    color *= intersection.obj.material.reflection
-//        color += trace(computeReflectedRay)*intersection.obj.material.rC
-//        color += trace(computeTransmittedRay)*intersection.obj.material.tC
-
     return color
   }
 
@@ -180,7 +177,4 @@ class Tracer(val scene: Scene, val options: RenderingOptions) {
   private fun computeShadowAttenuation(shadowRay: Ray, lightDistance: Double): Double {
     return 0.0
   }
-
-  fun ambientColor(intersection: ObjectIntersection): ColorD =
-      scene.ambientLight.multiply(intersection.obj.material.color)
 }

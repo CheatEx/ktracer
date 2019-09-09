@@ -18,7 +18,7 @@ class ReaderTest {
       is Parsed<Scene> -> {
         val scene = parseResult.value
         assertArrayEquals(ColorD(0.5, 0.5, 0.5).array, scene.background.array)
-        assertArrayEquals(ColorD(0.05, 0.05, 0.05).array, scene.ambientLight.array)
+        assertEquals(0.1, scene.ambientBrightness)
 
         assertArrayEquals(VectorD(10.0, 0.0, 0.0).array, scene.camera.at.array)
         assertArrayEquals(VectorD(0.0, 0.0, 10.0).array, scene.camera.upo.array)

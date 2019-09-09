@@ -1,6 +1,6 @@
 scene {
   background = 0.5 0.5 0.5
-  ambientLight = 0.05 0.05 0.05
+  ambientBrightness = 0.1
   camera {
     at = 10 0 0
     up = 0 0 10
@@ -8,13 +8,13 @@ scene {
   }
   pointLight {
     position = 3 0 10
-    color = 0.5 0.3 0.7
+    brightness = 3
   }
   spotLight {
     position = 10 -10 10
     at = 0 0 10
     spread = 0.52
-    color = 0.6 0.7 0.8
+    brightness = 3
   }
   sphere {
     position = 10 0 0

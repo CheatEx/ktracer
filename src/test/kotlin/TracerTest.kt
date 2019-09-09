@@ -8,11 +8,11 @@ internal class TracerTest {
       Camera(VectorD(10.0, 0.0, 0.0), VectorD(0.0, 0.0, 10.0), 1.57),
       listOf(Sphere(VectorD(10.0, 0.0, 0.0), 3.0, Material(ColorD.red, 1.0))),
       listOf(),
-      ambientLight = ColorD.white,
+      ambientBrightness = 0.1,
       background = ColorD.green)
 
   @Test fun intersection() {
-    val tracer = Tracer(simpleScene, RenderingOptions(Resolution(1024, 768), false))
+    val tracer = Tracer(simpleScene, RenderingOptions(Resolution(1024, 768)))
     var hit = true
     for (y in 384..679) {
       val x = 512
