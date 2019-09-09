@@ -115,6 +115,9 @@ inline class ColorD(val array: DoubleArray) {
     companion object {
         val black = ColorD(0.0, 0.0, 0.0)
         val white = ColorD(1.0, 1.0, 1.0)
+        val red = ColorD(1.0, 0.0, 0.0)
+        val green = ColorD(0.0, 1.0, 0.0)
+        val blue = ColorD(0.0, 0.0, 1.0)
     }
 
     operator fun plusAssign(other: Double) {
@@ -173,7 +176,7 @@ inline class ColorD(val array: DoubleArray) {
 
         val r = DoubleArray(this.array.size)
         for (i in this.array.indices) {
-            array[i] = this.array[i] * other.array[i]
+            r[i] = this.array[i] * other.array[i]
         }
 
         return ColorD(r)

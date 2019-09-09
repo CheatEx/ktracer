@@ -25,7 +25,7 @@ object SceneParser : Grammar<Scene>() {
   val background    by token("background")
   val ambientLight  by token("ambientLight")
   val camera        by token("camera")
-  val direction     by token("direction")
+  val at            by token("at")
   val up            by token("up")
   val viewport      by token("viewport")
   val pointLight    by token("pointLight")
@@ -34,8 +34,7 @@ object SceneParser : Grammar<Scene>() {
   val color         by token("color")
   val spread        by token("spread")
   val material      by token("material")
-  val alpha         by token("alpha")
-  val reflection    by token("reflection")
+  val diffuse       by token("diffuse")
   val sphere        by token("sphere")
   val radius        by token("radius")
 
@@ -54,11 +53,11 @@ object SceneParser : Grammar<Scene>() {
   val Background: Parser<ColorD> = value(background, Color)
   val Camera: Parser<Camera> =
       skip(camera) and skip(open) and
-      value(direction, Vector) and
+      value(at, Vector) and
       value(up, Vector) and
       value(viewport, FloatNum) and
-      skip(close) map { (d, u, v) ->
-        Camera(d, u, v) }
+      skip(close) map { (at, u, v) ->
+        Camera(at, u, v) }
   val PointLight: Parser<PointLight> =
       skip(pointLight) and skip(open) and
       value(position, Vector) and
@@ -68,25 +67,24 @@ object SceneParser : Grammar<Scene>() {
   val SpotLight: Parser<SpotLight> =
       skip(spotLight) and skip(open) and
       value(position, Vector) and
-      value(direction, Vector) and
+      value(at, Vector) and
       value(spread, FloatNum) and
       value(color, Color) and
-      skip(close) map { (p, d, a, c) ->
-        SpotLight(p, d, a, c) }
+      skip(close) map { (p, at, a, c) ->
+        SpotLight(p, at, a, c) }
   val Material: Parser<Material> =
       skip(material) and skip(open) and
       value(color, Color) and
-      value(alpha, FloatNum) and
-      value(reflection, FloatNum) and
-      skip(close) map { (c, a, r) ->
-        Material(c, a, r) }
+      value(diffuse, FloatNum) and
+      skip(close) map { (c, dr) ->
+        Material(c, dr) }
   val Sphere: Parser<Sphere> =
       skip(sphere) and skip(open) and
       value(position, Vector) and
       value(radius, FloatNum) and
       Material and
       skip(close) map { (p, r, m) ->
-        Sphere(p, m, r) }
+        Sphere(p, r, m) }
   val Object: Parser<MaterialObject> = Sphere
   val Light: Parser<Light> = PointLight or SpotLight
   val SceneBody: Parser<Scene> =

@@ -1,7 +1,5 @@
 package cc.cheatex.ktracer
 
-import kotlin.math.acos
-import kotlin.math.pow
 import kotlin.math.tan
 
 data class Resolution(val width: Int, val height: Int) {
@@ -11,10 +9,7 @@ data class Resolution(val width: Int, val height: Int) {
   }
 }
 
-data class RenderingOptions(val resolution: Resolution,
-                            val depth: Int,
-                            val minWeight: Double,
-                            val lightAttenuation: Boolean)
+data class RenderingOptions(val resolution: Resolution)
 
 sealed class Intersection
 
@@ -44,15 +39,13 @@ class ExtendedRay(origin: VectorD,
                   val obj: SceneObject)
   : Ray(origin, direction)
 
-const val screenDistance = 1.0
-
 class Screen(camera: Camera, val resolution: Resolution) {
-  val density: Double = tan(camera.viewport/2)*screenDistance*2 /resolution.width
+  val density: Double = tan(camera.viewport/2)*2/resolution.width
 
-  val nx: VectorD = (camera.at cross camera.up) * density
-  val ny: VectorD = (camera.at cross (camera.at cross camera.up)) * density
+  val nx: VectorD = (camera.direction cross camera.up) * density
+  val ny: VectorD = (camera.direction cross (camera.direction cross camera.up)) * density
 
-  val screenCenter: VectorD = camera.at * screenDistance / camera.at.length
+  val screenCenter: VectorD = camera.direction / camera.direction.length
 
   fun getPixelCoordinates(x: Int, y: Int): VectorD =
       screenCenter +
@@ -67,28 +60,33 @@ class Tracer(val scene: Scene, val options: RenderingOptions) {
 
   fun render(): Image {
     val image: Image =
-        Array(options.resolution.width) {
-          Array(options.resolution.height) {ColorD.white}
+        Array(options.resolution.height) {
+          Array(options.resolution.width) {ColorD.white}
         }
 
-    for (i in 0.until(options.resolution.width)) {
-      for (j in 0.until(options.resolution.height))
-        image[i][j] = calcPixel(i, j)
+    for (y in 0.until(options.resolution.height)) {
+      for (x in 0.until(options.resolution.width))
+        image[y][x] = calcPixel(x, y)
     }
 
     return image
   }
 
-  fun calcPixel(x: Int, y: Int): ColorD =
-      trace(Ray(VectorD.zero, screen.getPixelCoordinates(x, y) - VectorD.zero))
+  fun calcPixel(x: Int, y: Int): ColorD {
+    val pixelCoordinates = screen.getPixelCoordinates(x, y)
+//    if ((x==100 || x==200 || x==300 || x==500 || x==600) && (y==0 || y==350 || y==700))
+//      println("Pixel[$x, $y] =$pixelCoordinates")
+    val trace = trace(Ray(VectorD.zero, pixelCoordinates - VectorD.zero))
+    return trace
+  }
 
   fun trace(ray: Ray): ColorD =
-      when(val i = closestIntersection(ray, scene)) {
+      when(val i = closestIntersection(ray)) {
         InfinityIntersection -> scene.background
         is ObjectIntersection -> shade(ray, i)
       }
 
-  fun closestIntersection(ray: Ray, scene: Scene): Intersection =
+  fun closestIntersection(ray: Ray): Intersection =
       scene.objects
           .map { intersection(ray, it) }
           .minWith(intersectionComparator)
@@ -149,44 +147,23 @@ class Tracer(val scene: Scene, val options: RenderingOptions) {
       val lightDistance = lightDirection.length
       val localIntensity = light.color.copy()
 
-      if (light is SpotLight) {
-        //this is direction of spot
-        val spotDirection = -light.at
-        val hitPointDirection = (light.pos - intersection.hitPoint).unit
+//      if (light is SpotLight) {
+//        //this is direction of spot
+//        val spotDirection = light.direction
+//        val hitPointDirection = intersection.hitPoint - light.pos
+//
+//        val spotAngle = light.spread
+//        val hitPointAngle = acos(spotDirection.dot(hitPointDirection))
+//        if (hitPointAngle > spotAngle || hitPointAngle < 0) {
+//          continue
+//        }
+//        val falloff = 1 - (hitPointAngle / spotAngle).pow(2)
+//        localIntensity *= falloff
+//      }
 
-        val spotAngle = light.spread
-        val hitPointAngle = acos(spotDirection.dot(hitPointDirection))
-        if (hitPointAngle > spotAngle || hitPointAngle < 0) {
-          continue
-        }
-        val falloff = 1 - (hitPointAngle / spotAngle).pow(2)
-        localIntensity *= falloff
-      }
-
-      if (options.lightAttenuation) {
-        val falloff = 1.0 - lightDistance.pow(2)
-        localIntensity *= falloff
-      }
-
-      val viewingDirection = -ray.direction
-      val neh = lightDirection + viewingDirection
-
-      val nl = intersection.hitNormal.dot(lightDirection)
-
-      if (nl > 0) {
-        val shadowRayDirection = light.pos - intersection.hitPoint.unit
-        val shadowRayOrigin = shadowRayDirection * 1e-3 + intersection.hitPoint
-        val shadowRay = Ray(shadowRayOrigin, shadowRayDirection)
-        val shadowAttenuation = computeShadowAttenuation(shadowRay, lightDistance)
-
-        color += reflection(localIntensity, intersection.obj.material.color, nl, shadowAttenuation)
-
-        val nh = intersection.hitNormal.dot(neh).pow(intersection.obj.material.alpha)
-        color += reflection(localIntensity, intersection.obj.material.color, nh, shadowAttenuation)
-      }
     }
 
-    color *= intersection.obj.material.reflection
+//    color *= intersection.obj.material.reflection
 //        color += trace(computeReflectedRay)*intersection.obj.material.rC
 //        color += trace(computeTransmittedRay)*intersection.obj.material.tC
 

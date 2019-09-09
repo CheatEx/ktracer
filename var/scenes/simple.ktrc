@@ -1,0 +1,27 @@
+scene {
+  background = 0 1 0
+  ambientLight = 0.2 0.2 0.2
+  camera {
+    at = 10 0 0
+    up = 0 0 10
+    viewport = 1.57
+  }
+  pointLight {
+    position = 5 5 8
+    color = 1 1 1
+  }
+  spotLight {
+    position = 5 -7 8
+    at = 0 0 10
+    spread = 0.52
+    color = 1 1 1
+  }
+  sphere {
+    position = 10 0 0
+    radius = 3
+    material {
+      color = 1 0 0
+      diffuse = 1
+    }
+  }
+}

@@ -9,18 +9,15 @@ import java.io.IOException
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
-  if (args.size != 6) {
-    println("Usage: <stracer-command> width height depth min-weight light-attenuation scene-file")
+  if (args.size != 3) {
+    println("Usage: <stracer-command> width height scene-file")
     return
   }
   val imageWidth = args[0].toInt()
   val imageHeight = args[1].toInt()
-  val depth = args[2].toInt()
-  val minWeight = args[3].toDouble()
-  val	lightAttenuation = args[4].toBoolean()
-  val sceneFileName = args[5]
+  val sceneFileName = args[2]
 
-  val options = RenderingOptions(Resolution(imageWidth, imageHeight), depth, minWeight, lightAttenuation)
+  val options = RenderingOptions(Resolution(imageWidth, imageHeight))
 
   val parseResult: ParseResult<Scene> =
       try {

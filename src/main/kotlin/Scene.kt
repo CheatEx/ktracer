@@ -1,15 +1,14 @@
 package cc.cheatex.ktracer
 
 data class Material(val color: ColorD,
-                    val alpha: Double,
-                    val reflection: Double)
+                    val diffuse: Double)
 
 sealed class SceneObject(open val pos: VectorD)
 
 sealed class MaterialObject(override val pos: VectorD, open val material: Material)
   : SceneObject(pos)
 
-data class Sphere(override val pos: VectorD, override val material: Material, val radius: Double)
+data class Sphere(override val pos: VectorD, val radius: Double, override val material: Material)
   : MaterialObject(pos, material)
 
 sealed class Light(override val pos: VectorD, open val color: ColorD)
@@ -19,11 +18,13 @@ data class PointLight(override val pos: VectorD, override val color: ColorD)
   : Light(pos, color)
 
 data class SpotLight(override val pos: VectorD, val at: VectorD, val spread: Double, override val color: ColorD)
-  : Light(pos, color)
+  : Light(pos, color) {
+  val direction: VectorD = (at - pos).unit
+}
 
-data class Camera(val ato: VectorD, val upo: VectorD, val viewport: Double)
+data class Camera(val at: VectorD, val upo: VectorD, val viewport: Double)
   : SceneObject(VectorD.zero) {
-  val at = ato.unit
+  val direction = at.unit
   val up = upo.unit
 }
 

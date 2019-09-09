@@ -26,19 +26,13 @@ class ImagePanel(val img: AwtImage, val w: Int, val h: Int) : JPanel() {
 }
 
 fun toAwtImage(image: Image): AwtImage {
-    val width = image.size
-    val height = image[0].size
-    val pixels = IntArray(width*height)
+    val width = image[0].size
+    val height = image.size
     val awtImage = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
 
-    var arrayIndex = 0
-    for (column in image) {
-        for (pixel in column) {
-            pixels[arrayIndex] = pixel.rgbInt()
-            arrayIndex++
-        }
-    }
-    awtImage.setRGB(0, 0, image.size, image[0].size, pixels, 0, image.size)
+    for (row in 0.until(height))
+        for (column in 0.until(width))
+            awtImage.setRGB(column, row, image[row][column].rgbInt())
 
     return awtImage
 }
