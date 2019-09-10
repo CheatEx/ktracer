@@ -2,7 +2,11 @@ package cc.cheatex.ktracer
 
 import kotlin.math.sqrt
 
-inline class VectorD(val array: DoubleArray) {
+interface DoubleArrayWrapper {
+    val array: DoubleArray
+}
+
+inline class VectorD(override val array: DoubleArray) : DoubleArrayWrapper {
     constructor(x: Double, y: Double, z: Double) : this(doubleArrayOf(x, y, z))
 
     companion object {
@@ -109,7 +113,7 @@ inline class VectorD(val array: DoubleArray) {
         get() = this / this.length
 }
 
-inline class ColorD(val array: DoubleArray) {
+inline class ColorD(override val array: DoubleArray) : DoubleArrayWrapper {
     constructor(r: Double, g: Double, b: Double) : this(doubleArrayOf(r, g, b))
 
     companion object {

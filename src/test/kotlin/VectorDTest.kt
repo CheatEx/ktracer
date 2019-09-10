@@ -1,10 +1,7 @@
 package cc.cheatex.ktracer
 
-import org.hamcrest.Description
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.TypeSafeMatcher
 import org.junit.jupiter.api.Test
-import kotlin.math.abs
 
 internal class VectorDTest {
   val v123 = VectorD(1.0, 2.0, 3.0)

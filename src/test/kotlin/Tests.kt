@@ -6,10 +6,10 @@ import kotlin.math.abs
 
 const val E = 1e-6
 
-fun equal(v: VectorD) = VectorDMatcher(v, E)
+fun equal(v: DoubleArrayWrapper) = DoubleArrayMatcher(v, E)
 
-class VectorDMatcher(val value: VectorD, val error: Double)
-  : TypeSafeMatcher<VectorD>(VectorD::class.java) {
+class DoubleArrayMatcher(val value: DoubleArrayWrapper, val error: Double)
+  : TypeSafeMatcher<DoubleArrayWrapper>(DoubleArrayWrapper::class.java) {
 
   override fun describeTo(description: Description) {
     with(description) {
@@ -20,7 +20,7 @@ class VectorDMatcher(val value: VectorD, val error: Double)
     }
   }
 
-  override fun describeMismatchSafely(item: VectorD?, description: Description) {
+  override fun describeMismatchSafely(item: DoubleArrayWrapper?, description: Description) {
     with(description) {
       appendValue(item)
       appendText(" differed more than ")
@@ -28,7 +28,7 @@ class VectorDMatcher(val value: VectorD, val error: Double)
     }
   }
 
-  override fun matchesSafely(item: VectorD?): Boolean {
+  override fun matchesSafely(item: DoubleArrayWrapper?): Boolean {
     if (item == null) {
       return false
     } else {
