@@ -7,6 +7,7 @@ import kotlin.math.abs
 const val E = 1e-6
 
 fun equal(v: DoubleArrayWrapper) = DoubleArrayMatcher(v, E)
+fun closeTo(v: DoubleArrayWrapper, error: Double) = DoubleArrayMatcher(v, error)
 
 class DoubleArrayMatcher(val value: DoubleArrayWrapper, val error: Double)
   : TypeSafeMatcher<DoubleArrayWrapper>(DoubleArrayWrapper::class.java) {
@@ -22,9 +23,13 @@ class DoubleArrayMatcher(val value: DoubleArrayWrapper, val error: Double)
 
   override fun describeMismatchSafely(item: DoubleArrayWrapper?, description: Description) {
     with(description) {
-      appendValue(item)
-      appendText(" differed more than ")
-      appendValue(error)
+      if (item == null) {
+        appendText("value is null")
+      } else {
+        appendValue(item)
+        appendText(" differences are ")
+        appendValue(DoubleArray(item.array.size) { delta(value.array[it], item.array[it]) })
+      }
     }
   }
 

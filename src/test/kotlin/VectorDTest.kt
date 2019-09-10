@@ -5,9 +5,6 @@ import org.junit.jupiter.api.Test
 
 internal class VectorDTest {
   val v123 = VectorD(1.0, 2.0, 3.0)
-  val x = VectorD(1.0, 0.0, 0.0)
-  val y = VectorD(0.0, 1.0, 0.0)
-  val z = VectorD(0.0, 0.0, 1.0)
 
   @Test fun constructor() {
     VectorD(1.0, 2.0, 3.0)
@@ -19,8 +16,8 @@ internal class VectorDTest {
   }
 
   @Test fun cross() {
-    assertThat(x cross y, equal(z))
-    assertThat(x cross z, equal(-y))
-    assertThat(x cross (x cross z), equal(-z))
+    assertThat(VectorD.x cross VectorD.y, equal(VectorD.z))
+    assertThat(VectorD.x cross VectorD.z, equal(-VectorD.y))
+    assertThat(VectorD.x cross (VectorD.x cross VectorD.z), equal(-VectorD.z))
   }
 }

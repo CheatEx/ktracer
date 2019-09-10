@@ -34,7 +34,9 @@ val intersectionComparator: Comparator<Intersection> = Comparator { o1, o2 ->
   }
 }
 
-open class Ray(val origin: VectorD, val direction: VectorD)
+open class Ray(val origin: VectorD, val at: VectorD) {
+  val direction: VectorD = at.unit
+}
 
 class ExtendedRay(origin: VectorD,
                   direction: VectorD,
@@ -99,8 +101,8 @@ class Tracer(val scene: Scene, val options: RenderingOptions) {
 
   private fun intersectSphere(ray: Ray, obj: Sphere): Intersection {
     val t = ray.origin - obj.pos
-    val A = ray.direction.sumsq
-    val B = ray.direction.dot(t) * 2
+    val A = ray.at.sumsq
+    val B = ray.at.dot(t) * 2
     val C = t.sumsq - (obj.radius * obj.radius)
     var temp = B * B - 4 * A * C
 
@@ -131,7 +133,7 @@ class Tracer(val scene: Scene, val options: RenderingOptions) {
       if (t0 < E)
         return InfinityIntersection
     }
-    val p = (ray.direction * t0) + ray.origin
+    val p = (ray.at * t0) + ray.origin
     val n = (p - obj.pos) / obj.radius
 
     return ObjectIntersection(p, n, obj, t0)

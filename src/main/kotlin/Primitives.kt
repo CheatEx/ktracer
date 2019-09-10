@@ -11,6 +11,9 @@ inline class VectorD(override val array: DoubleArray) : DoubleArrayWrapper {
 
     companion object {
         val zero = VectorD(0.0, 0.0, 0.0)
+        val x = VectorD(1.0, 0.0, 0.0)
+        val y = VectorD(0.0, 1.0, 0.0)
+        val z = VectorD(0.0, 0.0, 1.0)
     }
 
     operator fun plus(other: VectorD): VectorD {
