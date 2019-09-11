@@ -145,11 +145,10 @@ class Tracer(val scene: Scene, val options: RenderingOptions) {
 
     for (light in scene.lights) {
       //there is direction to light from hit point
-      val lightVector = intersection.hitPoint - light.pos
+      val lightVector = light.pos - intersection.hitPoint
       val lightDistance = lightVector.length
-      val localIntensity = light.brightness * material.diffuse * max(0.0, intersection.hitNormal.dot(lightVector.unit)) / (PI * lightDistance * lightDistance)
+      val localIntensity = (max(0.0, intersection.hitNormal.dot(lightVector.unit)) * material.diffuse) * ( light.brightness / (PI * lightDistance * lightDistance))
       color += material.color.multiply(localIntensity)
-
 //      if (light is SpotLight) {
 //        //this is direction of spot
 //        val spotDirection = light.direction

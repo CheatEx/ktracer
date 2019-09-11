@@ -1,5 +1,6 @@
 package cc.cheatex.ktracer
 
+import kotlin.math.min
 import kotlin.math.sqrt
 
 interface DoubleArrayWrapper {
@@ -209,7 +210,7 @@ inline class ColorD(override val array: DoubleArray) : DoubleArrayWrapper {
         return red.shl(16) or green.shl(8) or blue
     }
 
-    private fun componentByte(x: Double): Int = (x * 255).toInt()
+    private fun componentByte(x: Double): Int = min((x * 255).toInt(), 255)
 
     fun copy(): ColorD {
         return ColorD(DoubleArray(3) { array[it] })

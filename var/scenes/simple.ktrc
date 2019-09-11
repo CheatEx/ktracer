@@ -1,5 +1,5 @@
 scene {
-  background = 0 1 0
+  background = 1 1 1
   ambientBrightness = 0.2
   camera {
     at = 10 0 0
@@ -7,15 +7,19 @@ scene {
     viewport = 1.57
   }
   pointLight {
-    position = 5 5 8
-    brightness = 1
+    position = 8 10 0
+    brightness = 500
   }
+  pointLight {
+      position = 7 0 10
+      brightness = 700
+    }
   sphere {
     position = 10 0 0
     radius = 3
     material {
       color = 1 0 0
-      diffuse = 1
+      diffuse = 0.3
     }
   }
 }
