@@ -1,8 +1,6 @@
 package cc.cheatex.ktracer
 
-import kotlin.math.PI
-import kotlin.math.max
-import kotlin.math.tan
+import kotlin.math.*
 
 data class Resolution(val width: Int, val height: Int) {
   init {
@@ -147,22 +145,17 @@ class Tracer(val scene: Scene, val options: RenderingOptions) {
       //there is direction to light from hit point
       val lightVector = light.pos - intersection.hitPoint
       val lightDistance = lightVector.length
-      val localIntensity = (max(0.0, intersection.hitNormal.dot(lightVector.unit)) * material.diffuse) * ( light.brightness / (PI * lightDistance * lightDistance))
+      var localIntensity = (max(0.0, intersection.hitNormal.dot(lightVector.unit)) * material.diffuse) * ( light.brightness / (PI * lightDistance * lightDistance))
+      if (light is SpotLight) {
+        val spotAngle = light.spread
+        val hitPointAngle = acos(light.direction.dot(-lightVector.unit))
+        if (hitPointAngle > spotAngle || hitPointAngle < 0) {
+          continue
+        }
+        val falloff = 1 - (hitPointAngle / spotAngle).pow(2)
+        localIntensity *= falloff
+      }
       color += material.color.multiply(localIntensity)
-//      if (light is SpotLight) {
-//        //this is direction of spot
-//        val spotDirection = light.direction
-//        val hitPointDirection = intersection.hitPoint - light.pos
-//
-//        val spotAngle = light.spread
-//        val hitPointAngle = acos(spotDirection.dot(hitPointDirection))
-//        if (hitPointAngle > spotAngle || hitPointAngle < 0) {
-//          continue
-//        }
-//        val falloff = 1 - (hitPointAngle / spotAngle).pow(2)
-//        localIntensity *= falloff
-//      }
-
     }
 
     return color

@@ -69,10 +69,10 @@ object SceneParser : Grammar<Scene>() {
       skip(spotLight) and skip(open) and
       value(position, Vector) and
       value(at, Vector) and
-      value(spread, FloatNum) and
       value(brightness, FloatNum) and
-      skip(close) map { (p, at, a, b) ->
-        SpotLight(p, at, a, b) }
+      value(spread, FloatNum) and
+      skip(close) map { (p, at, b, s) ->
+        SpotLight(p, at, s, b) }
   val Material: Parser<Material> =
       skip(material) and skip(open) and
       value(color, Color) and

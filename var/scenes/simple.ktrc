@@ -8,18 +8,20 @@ scene {
   }
   pointLight {
     position = 8 10 0
-    brightness = 500
+    brightness = 400
   }
-  pointLight {
-      position = 7 0 10
-      brightness = 700
-    }
+  spotLight {
+    position = 5 -8 8
+    at = 10 1 -1
+    brightness = 500
+    spread = 0.2
+  }
   sphere {
     position = 10 0 0
     radius = 3
     material {
       color = 1 0 0
-      diffuse = 0.3
+      diffuse = 0.6
     }
   }
 }
