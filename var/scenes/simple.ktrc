@@ -6,14 +6,18 @@ scene {
     up = 0 0 10
     viewport = 1.57
   }
+  directedLight {
+    at = 5 5 5
+    brightness = 0.3
+  }
   pointLight {
     position = 8 10 0
-    brightness = 400
+    brightness = 200
   }
   spotLight {
     position = 5 -8 8
-    at = 10 1 -1
-    brightness = 500
+    at = 8 1 -1
+    brightness = 400
     spread = 0.2
   }
   sphere {

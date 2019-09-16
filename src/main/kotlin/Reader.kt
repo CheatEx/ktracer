@@ -30,6 +30,7 @@ object SceneParser : Grammar<Scene>() {
   val viewport      by token("viewport")
   val pointLight    by token("pointLight")
   val spotLight     by token("spotLight")
+  val directedLight by token("directedLight")
   val position      by token("position")
   val color         by token("color")
   val brightness    by token("brightness")
@@ -73,6 +74,12 @@ object SceneParser : Grammar<Scene>() {
       value(spread, FloatNum) and
       skip(close) map { (p, at, b, s) ->
         SpotLight(p, at, s, b) }
+  val DirectedLight: Parser<DirectedLight> =
+      skip(directedLight) and skip(open) and
+      value(at, Vector) and
+      value(brightness, FloatNum) and
+      skip(close) map { (at, b) ->
+        DirectedLight(at, b) }
   val Material: Parser<Material> =
       skip(material) and skip(open) and
       value(color, Color) and
@@ -87,7 +94,7 @@ object SceneParser : Grammar<Scene>() {
       skip(close) map { (p, r, m) ->
         Sphere(p, r, m) }
   val Object: Parser<MaterialObject> = Sphere
-  val Light: Parser<Light> = PointLight or SpotLight
+  val Light: Parser<Light> = PointLight or SpotLight or DirectedLight
   val SceneBody: Parser<Scene> =
       Background and
       AmbientLight and

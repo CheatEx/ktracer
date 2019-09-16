@@ -142,24 +142,55 @@ class Tracer(val scene: Scene, val options: RenderingOptions) {
     val color = material.color.multiply(scene.ambientBrightness)
 
     for (light in scene.lights) {
-      //there is direction to light from hit point
-      val lightVector = light.pos - intersection.hitPoint
-      val lightDistance = lightVector.length
-      var localIntensity = (max(0.0, intersection.hitNormal.dot(lightVector.unit)) * material.diffuse) * ( light.brightness / (PI * lightDistance * lightDistance))
-      if (light is SpotLight) {
-        val spotAngle = light.spread
-        val hitPointAngle = acos(light.direction.dot(-lightVector.unit))
-        if (hitPointAngle > spotAngle || hitPointAngle < 0) {
-          continue
-        }
-        val falloff = 1 - (hitPointAngle / spotAngle).pow(2)
-        localIntensity *= falloff
-      }
-      color += material.color.multiply(localIntensity)
+      color += material.color.multiply(localIntensity(light, intersection))
     }
 
     return color
   }
+
+  fun localIntensity(light: Light, intersection: ObjectIntersection): Double =
+      when (light) {
+        is PointLight -> {
+          diffuseIntensity(light, intersection) * distanceFalloff(light, intersection)
+        }
+        is SpotLight -> {
+          diffuseIntensity(light, intersection) * distanceFalloff(light, intersection) * coneFalloff(light, intersection)
+        }
+        is DirectedLight -> {
+          diffuseIntensity(light, intersection) * light.brightness
+        }
+      }
+
+  private fun distancedDiffuseIntensity(light: Light, intersection: ObjectIntersection): Double {
+    val distance = (light.pos - intersection.hitPoint).length
+    return diffuseIntensity(light, intersection) * (light.brightness / (PI * distance * distance))
+  }
+
+  private fun diffuseIntensity(light: Light, intersection: ObjectIntersection) =
+    max(0.0, intersection.hitNormal.dot(toLight(light, intersection))) * intersection.obj.material.diffuse
+
+  private fun distanceFalloff(light: Light, intersection: ObjectIntersection): Double {
+    val distance = (light.pos - intersection.hitPoint).length
+    return light.brightness / (PI * distance * distance)
+  }
+
+  private fun coneFalloff(light: SpotLight, intersection: ObjectIntersection): Double {
+    val spotAngle = light.spread
+    val hitPointAngle = acos(light.direction.dot(-toLight(light, intersection)))
+
+    return if (hitPointAngle in 0.0..spotAngle) {
+      val falloff = 1 - (hitPointAngle / spotAngle).pow(2)
+      distancedDiffuseIntensity(light, intersection) * falloff
+    } else {
+      0.0
+    }
+  }
+
+  fun toLight(light: Light, intersection: ObjectIntersection): VectorD =
+    when (light) {
+      is PointLight, is SpotLight -> (light.pos - intersection.hitPoint).unit
+      is DirectedLight -> light.to
+    }
 
   fun reflection(light: ColorD, material: ColorD, k: Double, shadowAttenuation: Double): ColorD {
     val color: ColorD = light.copy()

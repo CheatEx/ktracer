@@ -22,6 +22,11 @@ data class SpotLight(override val pos: VectorD, val at: VectorD, val spread: Dou
   val direction: VectorD = (at - pos).unit
 }
 
+data class DirectedLight(val at: VectorD, override val brightness: Double)
+  : Light(VectorD.zero, brightness) {
+  val to: VectorD = -at.unit
+}
+
 data class Camera(val at: VectorD, val upo: VectorD, val viewport: Double)
   : SceneObject(VectorD.zero) {
   val direction = at.unit
