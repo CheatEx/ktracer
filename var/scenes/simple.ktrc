@@ -1,31 +1,35 @@
 scene {
   background = 1 1 1
-  ambientBrightness = 0.2
+  ambientBrightness = 0.15
   camera {
     at = 10 0 0
     up = 0 0 10
-    viewport = 1.57
+    viewport = 1.83
   }
   directedLight {
-    at = 5 5 5
+    at = 5 -5 0
     brightness = 0.3
   }
-  pointLight {
-    position = 8 10 0
-    brightness = 200
-  }
   spotLight {
-    position = 5 -8 8
-    at = 8 1 -1
-    brightness = 400
-    spread = 0.2
+    position = 2 -4 4
+    at = 10 0 0
+    brightness = 200
+    spread = 0.25
   }
   sphere {
     position = 10 0 0
-    radius = 3
+    radius = 4
     material {
       color = 1 0 0
-      diffuse = 0.6
+      diffuse = 0.8
     }
   }
+  sphere {
+      position = 6 -4 4
+      radius = 2
+      material {
+        color = 0 0 1
+        diffuse = 0.5
+      }
+    }
 }

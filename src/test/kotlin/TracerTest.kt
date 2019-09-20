@@ -18,7 +18,7 @@ internal class TracerTest {
     for (y in 384..679) {
       val x = 512
       val direction = tracer.screen.getPixelCoordinates(x, y)
-      val i = tracer.closestIntersection(Ray(VectorD.zero, direction))
+      val i = closestIntersection(simpleScene, Ray(VectorD.zero, direction))
       val nowHit = i is ObjectIntersection
       if (!hit and nowHit) {
         fail<Nothing>("Hit appeared again [$x, $y]")
@@ -29,7 +29,7 @@ internal class TracerTest {
     for (x in 512..1024) {
       val y = 384
       val direction = tracer.screen.getPixelCoordinates(x, y)
-      val i = tracer.closestIntersection(Ray(VectorD.zero, direction))
+      val i = closestIntersection(simpleScene, Ray(VectorD.zero, direction))
       val nowHit = i is ObjectIntersection
       if (!hit and nowHit) {
         fail<Nothing>("Hit appeared again [$x, $y]")
@@ -39,17 +39,16 @@ internal class TracerTest {
   }
 
   @Test fun intersection() {
-    val tracer = Tracer(simpleScene, RenderingOptions(Resolution(2, 2)))
-    val sphere = simpleScene.objects.first()
+    val sphere = simpleScene.objects.first() as Sphere
 
-    val i = tracer.intersection(Ray(VectorD.zero, sphere.pos), sphere)
+    val i = intersection(Ray(VectorD.zero, sphere.pos), sphere)
     when (i) {
       is InfinityIntersection -> fail<Nothing>("Ray should intersect")
       is ObjectIntersection ->
         assertThat(i.hitNormal, equal(VectorD(-1.0, 0.0, 0.0)))
     }
 
-    val i1 = tracer.intersection(Ray(VectorD.zero, sphere.pos + VectorD(0.0, 2.0, 2.0)), sphere)
+    val i1 = intersection(Ray(VectorD.zero, sphere.pos + VectorD(0.0, 2.0, 2.0)), sphere)
     when (i1) {
       is InfinityIntersection -> fail<Nothing>("Ray should intersect")
       is ObjectIntersection ->
@@ -58,7 +57,7 @@ internal class TracerTest {
 
     //touching in x-y plane
     val at = sphere.pos + VectorD(0.0, 3.14485451, 0.0)
-    val i2 = tracer.intersection(Ray(VectorD.zero, at), sphere)
+    val i2 = intersection(Ray(VectorD.zero, at), sphere)
     when (i2) {
       is InfinityIntersection -> fail<Nothing>("Ray should intersect")
       is ObjectIntersection ->
